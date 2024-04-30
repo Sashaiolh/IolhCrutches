@@ -1,4 +1,4 @@
-package org.sashaiolh.iolhcrutches.vanila;
+package org.sashaiolh.iolhcrutches.mixins;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -13,12 +13,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SugarCaneBlock.class)
 public class SugarCaneMixin {
-    @Inject(at = @At("HEAD"), method = "randomTick")
+    @Inject(at = @At("HEAD"), method = "randomTick", cancellable = true)
     public void onRandomTick(BlockState p_222548_, ServerLevel p_222549_, BlockPos p_222550_, RandomSource p_222551_, CallbackInfo ci) {
         int height = 0;
         while (p_222549_.getBlockState(p_222550_).getBlock() == Blocks.SUGAR_CANE) {
             height++;
-            if (height >= 3) {
+            if (height >= 2) {
                 ci.cancel();
                 break;
             }
