@@ -5,8 +5,7 @@
   "refmap": "iolhcrutches.refmap.json",
   "mixins": [
     "CommandDeOpMixin",
-    "CommandOpMixin",
-    "forbidden_arcanus.QuantumCatcherItemMixin"
+    "CommandOpMixin"
   ]
 }
 
