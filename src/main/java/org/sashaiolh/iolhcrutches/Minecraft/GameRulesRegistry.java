@@ -3,29 +3,41 @@ package org.sashaiolh.iolhcrutches.Minecraft;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.sashaiolh.iolhcrutches.IolhCrutches;
 
 @Mod.EventBusSubscriber
 public class GameRulesRegistry {
-    public static final GameRules.Key<GameRules.BooleanValue> ALWAYS_CLEAR_RULE = GameruleUtilities.registerBooleanRule("alwaysClear", GameRules.Category.MISC, false);
-    public static final GameRules.Key<GameRules.BooleanValue> ALWAYS_DAY_RULE = GameruleUtilities.registerBooleanRule("alwaysDay", GameRules.Category.MISC, false);
 
-    // Обработка серверного тика для установки ясной погоды
+    public static boolean alwaysClearGameruleState;
+    public static boolean alwaysDayGameruleState;
+
+    private static boolean statesLoaded = false;
+
+    @SubscribeEvent
+    public static void onServerStart(ServerStartingEvent event){
+        alwaysDayGameruleState = ServerData.getAlwaysDayState(event.getServer());
+        alwaysClearGameruleState = ServerData.getAlwaysClearState(event.getServer());
+        statesLoaded = true;
+    }
+
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
+
+            if(!statesLoaded){
+                return;
+            }
+
             for (ServerLevel level : event.getServer().getAllLevels()) {
-                // Проверка и установка ясной погоды
-                boolean alwaysClear = GameruleUtilities.getBooleanGamerule(level, ALWAYS_CLEAR_RULE);
-                if (alwaysClear) {
+                if (alwaysClearGameruleState) {
                     level.setWeatherParameters(6000, 0, false, false);
                 }
 
-                // Проверка и установка постоянного дня
-                boolean alwaysDay = GameruleUtilities.getBooleanGamerule(level, ALWAYS_DAY_RULE);
-                if (alwaysDay) {
-                    level.setDayTime(1000); // Устанавливаем время на утро
+                if (alwaysDayGameruleState) {
+                    level.setDayTime(1000);
                 }
             }
         }
